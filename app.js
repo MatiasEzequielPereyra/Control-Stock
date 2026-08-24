@@ -1,15 +1,18 @@
 /**
- * Stock Kiosco v4
- * - Sin lupa en buscador
- * - Click en "Stock bajo" filtra
- * - Configuración de categorías predefinidas
- * - Productos de ejemplo de kiosco
+ * Stock Kiosco v5 — listo para comercializar (fase 1)
+ * - PWA instalable + offline
+ * - Onboarding de primera vez
+ * - Base de producto para multi-dispositivo (próximo paso)
  */
 
 const STORAGE_KEY = "kiosco_stock_v3";
 const CATS_KEY = "kiosco_categorias_v1";
 const THEME_KEY = "kiosco_theme";
+const ONBOARDING_KEY = "kiosco_onboarding_done";
+const INSTALL_DISMISS_KEY = "kiosco_install_dismiss";
 const MAX_IMG_SIZE = 400;
+
+let deferredInstallPrompt = null;
 
 const CATEGORIAS_DEFAULT = [
   "Bebidas",
@@ -811,13 +814,73 @@ function inicializarEventos() {
   });
 }
 
+// =====================
+// PWA + Onboarding
+// =====================
+function registrarServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.register("./sw.js").catch(() => {
+    /* silencioso: puede fallar en file:// */
+  });
+}
+
+function setupInstallPrompt() {
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if (localStorage.getItem(INSTALL_DISMISS_KEY)) return;
+    // No mostrar si ya está instalada (standalone)
+    if (window.matchMedia("(display-mode: standalone)").matches) return;
+    $("#install-banner")?.classList.remove("hidden");
+  });
+
+  $("#btn-install")?.addEventListener("click", async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    $("#install-banner")?.classList.add("hidden");
+    if (outcome === "accepted") {
+      mostrarToast("¡App instalada!", "success");
+    }
+  });
+
+  $("#btn-install-dismiss")?.addEventListener("click", () => {
+    localStorage.setItem(INSTALL_DISMISS_KEY, "1");
+    $("#install-banner")?.classList.add("hidden");
+  });
+}
+
+function setupOnboarding() {
+  const done = localStorage.getItem(ONBOARDING_KEY);
+  if (done) return;
+
+  const el = $("#onboarding");
+  if (!el) return;
+  el.classList.remove("hidden");
+
+  const cerrar = () => {
+    localStorage.setItem(ONBOARDING_KEY, "1");
+    el.classList.add("hidden");
+  };
+
+  $("#btn-empezar")?.addEventListener("click", cerrar);
+  $("#btn-empezar-ejemplos")?.addEventListener("click", () => {
+    cerrar();
+    cargarEjemplos();
+  });
+}
+
 function init() {
+  registrarServiceWorker();
   cargarTema();
   cargarCategorias();
   cargarProductos();
   actualizarFiltroCategorias();
   renderGrid();
   inicializarEventos();
+  setupInstallPrompt();
+  setupOnboarding();
 }
 
 document.addEventListener("DOMContentLoaded", init);

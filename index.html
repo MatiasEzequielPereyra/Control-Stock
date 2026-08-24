@@ -2,7 +2,15 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#3b82f6" />
+  <meta name="description" content="Control de stock y mercadería para kioscos. Instalable en el celular." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Stock Kiosco" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
   <title>Stock Kiosco · Control de inventario</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -10,6 +18,35 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <!-- Banner instalar PWA -->
+  <div id="install-banner" class="install-banner hidden">
+    <div class="install-banner-content">
+      <span>📱 Instalá Stock Kiosco en tu teléfono</span>
+      <div class="install-banner-actions">
+        <button type="button" class="btn btn-primary btn-sm" id="btn-install">Instalar</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-install-dismiss">Ahora no</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onboarding primera vez -->
+  <div id="onboarding" class="onboarding hidden">
+    <div class="onboarding-card">
+      <div class="onboarding-logo">🏪</div>
+      <h1>Stock Kiosco</h1>
+      <p class="onboarding-lead">Controlá la mercadería de tu kiosco de forma simple.</p>
+      <ul class="onboarding-list">
+        <li>📦 Stock en tiempo real</li>
+        <li>💰 Precio de compra y venta</li>
+        <li>📷 Fotos desde la cámara</li>
+        <li>⚠️ Alertas de stock bajo</li>
+        <li>📱 Funciona en el celular como app</li>
+      </ul>
+      <button type="button" class="btn btn-primary btn-lg" id="btn-empezar">Empezar</button>
+      <button type="button" class="btn btn-secondary" id="btn-empezar-ejemplos">Empezar con productos de ejemplo</button>
+    </div>
+  </div>
+
   <div class="app">
     <!-- Header -->
     <header class="header">
