@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Kiosco · Control de inventario</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">
+          <span class="logo-icon">🏪</span>
+          <div>
+            <h1>Stock Kiosco</h1>
+            <p class="subtitle">Control de mercadería</p>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-theme" class="btn btn-ghost" title="Cambiar tema (T)">
+          <span id="theme-icon">☀️</span>
+        </button>
+        <button id="btn-export" class="btn btn-ghost" title="Exportar CSV">
+          ⬇️ Exportar
+        </button>
+        <button id="btn-nuevo" class="btn btn-primary">
+          <span>+</span> Nuevo producto
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats -->
+    <section class="stats">
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-info">
+          <span class="stat-label">Productos</span>
+          <span class="stat-value" id="stat-productos">0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-info">
+          <span class="stat-label">Unidades</span>
+          <span class="stat-value" id="stat-stock">0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🛒</div>
+        <div class="stat-info">
+          <span class="stat-label">Costo inventario</span>
+          <span class="stat-value" id="stat-costo">$0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+          <span class="stat-label">Valor venta</span>
+          <span class="stat-value" id="stat-venta">$0</span>
+        </div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-info">
+          <span class="stat-label">Stock bajo</span>
+          <span class="stat-value" id="stat-bajo">0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controles -->
+    <section class="controls">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input
+          type="search"
+          id="buscador"
+          placeholder="Buscar producto o categoría...  ( / )"
+          autocomplete="off"
+        />
+        <kbd class="shortcut-hint">/</kbd>
+      </div>
+      <select id="filtro-categoria" class="select">
+        <option value="">Todas las categorías</option>
+      </select>
+      <select id="orden" class="select">
+        <option value="nombre-asc">Nombre A-Z</option>
+        <option value="nombre-desc">Nombre Z-A</option>
+        <option value="stock-asc">Stock ↑</option>
+        <option value="stock-desc">Stock ↓</option>
+        <option value="precioVenta-asc">Precio venta ↑</option>
+        <option value="precioVenta-desc">Precio venta ↓</option>
+      </select>
+    </section>
+
+    <!-- Grilla de productos -->
+    <section class="grid-section">
+      <div id="productos-grid" class="productos-grid"></div>
+
+      <div id="empty-state" class="empty-state hidden">
+        <div class="empty-illustration">📦</div>
+        <h3>No hay productos todavía</h3>
+        <p>Agregá tu primer producto para empezar a controlar el stock.</p>
+        <button class="btn btn-primary" id="btn-empty-nuevo">+ Agregar producto</button>
+      </div>
+
+      <div id="no-results" class="empty-state hidden">
+        <div class="empty-illustration">🔍</div>
+        <h3>Sin resultados</h3>
+        <p>No encontramos productos con ese filtro.</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>Atajos: <kbd>N</kbd> nuevo · <kbd>/</kbd> buscar · <kbd>T</kbd> tema · <kbd>Esc</kbd> cerrar</span>
+    </footer>
+  </div>
+
+  <!-- Modal Producto -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-titulo">Nuevo producto</h2>
+        <button class="btn-icon" id="btn-cerrar-modal" aria-label="Cerrar">✕</button>
+      </div>
+      <form id="form-producto" novalidate>
+        <input type="hidden" id="producto-id" />
+
+        <!-- Foto -->
+        <div class="form-group foto-group">
+          <label>Foto del producto</label>
+          <div class="foto-upload">
+            <div class="foto-preview" id="foto-preview">
+              <span class="foto-placeholder" id="foto-placeholder">📷</span>
+              <img id="foto-img" class="hidden" alt="Vista previa" />
+            </div>
+            <div class="foto-actions">
+              <label class="btn btn-secondary btn-sm" for="foto-input">📁 Galería</label>
+              <input type="file" id="foto-input" accept="image/*" class="hidden" />
+              <label class="btn btn-secondary btn-sm" for="foto-camara">📷 Cámara</label>
+              <input type="file" id="foto-camara" accept="image/*" capture="environment" class="hidden" />
+              <button type="button" class="btn btn-ghost btn-sm" id="btn-quitar-foto">Quitar</button>
+            </div>
+            <p class="hint">Opcional · En el celular podés sacar la foto al momento</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="nombre">Nombre del producto *</label>
+          <input type="text" id="nombre" required maxlength="80" placeholder="Ej: Coca Cola 500ml" autocomplete="off" />
+          <span class="field-error" id="error-nombre"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="categoria">Categoría</label>
+          <input type="text" id="categoria" list="lista-categorias" placeholder="Ej: Bebidas" autocomplete="off" />
+          <datalist id="lista-categorias"></datalist>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="precio-compra">Precio de compra ($)</label>
+            <input type="number" id="precio-compra" min="0" step="0.01" placeholder="0.00" />
+          </div>
+          <div class="form-group">
+            <label for="precio-venta">Precio de venta ($)</label>
+            <input type="number" id="precio-venta" min="0" step="0.01" placeholder="0.00" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="stock">Stock actual</label>
+            <input type="number" id="stock" min="0" step="1" value="0" />
+          </div>
+          <div class="form-group">
+            <label for="stock-minimo">Stock mínimo (alerta)</label>
+            <input type="number" id="stock-minimo" min="0" step="1" value="5" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="btn-cancelar">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-guardar">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Confirmación -->
+  <div id="modal-confirm" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h2 id="confirm-titulo">Confirmar</h2>
+        <button class="btn-icon" id="btn-cerrar-confirm" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-mensaje"></p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="btn-confirm-cancel">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="btn-confirm-ok">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Ajuste de stock -->
+  <div id="modal-stock" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h2>Ajustar stock</h2>
+        <button class="btn-icon" id="btn-cerrar-stock" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="stock-producto-nombre" id="stock-nombre"></p>
+        <div class="stock-adjust">
+          <button type="button" class="btn-stock-big" data-delta="-10">−10</button>
+          <button type="button" class="btn-stock-big" data-delta="-5">−5</button>
+          <button type="button" class="btn-stock-big" data-delta="-1">−1</button>
+          <span class="stock-actual" id="stock-actual">0</span>
+          <button type="button" class="btn-stock-big" data-delta="1">+1</button>
+          <button type="button" class="btn-stock-big" data-delta="5">+5</button>
+          <button type="button" class="btn-stock-big" data-delta="10">+10</button>
+        </div>
+        <div class="form-group" style="margin-top: 1rem;">
+          <label for="stock-manual">O ingresá un valor exacto</label>
+          <input type="number" id="stock-manual" min="0" step="1" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="btn-stock-cancel">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-stock-ok">Aplicar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
