@@ -26,6 +26,9 @@
         <button id="btn-theme" class="btn btn-ghost" title="Cambiar tema (T)">
           <span id="theme-icon">☀️</span>
         </button>
+        <button id="btn-config" class="btn btn-ghost" title="Configuración">
+          ⚙️ Config
+        </button>
         <button id="btn-export" class="btn btn-ghost" title="Exportar CSV">
           ⬇️ Exportar
         </button>
@@ -65,7 +68,7 @@
           <span class="stat-value" id="stat-venta">$0</span>
         </div>
       </div>
-      <div class="stat-card warning">
+      <div class="stat-card warning clickable" id="stat-bajo-card" title="Click para filtrar stock bajo">
         <div class="stat-icon">⚠️</div>
         <div class="stat-info">
           <span class="stat-label">Stock bajo</span>
@@ -74,10 +77,15 @@
       </div>
     </section>
 
+    <!-- Chip de filtro activo -->
+    <div id="filtro-activo" class="filtro-activo hidden">
+      <span>Mostrando solo stock bajo</span>
+      <button type="button" id="btn-limpiar-filtro" class="btn-chip">✕ Quitar filtro</button>
+    </div>
+
     <!-- Controles -->
     <section class="controls">
       <div class="search-box">
-        <span class="search-icon">🔍</span>
         <input
           type="search"
           id="buscador"
@@ -106,8 +114,11 @@
       <div id="empty-state" class="empty-state hidden">
         <div class="empty-illustration">📦</div>
         <h3>No hay productos todavía</h3>
-        <p>Agregá tu primer producto para empezar a controlar el stock.</p>
-        <button class="btn btn-primary" id="btn-empty-nuevo">+ Agregar producto</button>
+        <p>Agregá tu primer producto o cargá los de ejemplo.</p>
+        <div class="empty-actions">
+          <button class="btn btn-primary" id="btn-empty-nuevo">+ Agregar producto</button>
+          <button class="btn btn-secondary" id="btn-cargar-ejemplos">Cargar ejemplos de kiosco</button>
+        </div>
       </div>
 
       <div id="no-results" class="empty-state hidden">
@@ -133,7 +144,6 @@
       <form id="form-producto" novalidate>
         <input type="hidden" id="producto-id" />
 
-        <!-- Foto -->
         <div class="form-group foto-group">
           <label>Foto del producto</label>
           <div class="foto-upload">
@@ -160,8 +170,9 @@
 
         <div class="form-group">
           <label for="categoria">Categoría</label>
-          <input type="text" id="categoria" list="lista-categorias" placeholder="Ej: Bebidas" autocomplete="off" />
-          <datalist id="lista-categorias"></datalist>
+          <select id="categoria" class="select select-full">
+            <option value="">Sin categoría</option>
+          </select>
         </div>
 
         <div class="form-row">
@@ -191,6 +202,43 @@
           <button type="submit" class="btn btn-primary" id="btn-guardar">Guardar</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal Configuración (categorías) -->
+  <div id="modal-config" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Configuración</h2>
+        <button class="btn-icon" id="btn-cerrar-config" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <h3 class="config-section-title">Categorías</h3>
+        <p class="hint" style="margin-bottom: 0.85rem;">
+          Armá las categorías antes de cargar productos. Después las elegís al crear cada artículo.
+        </p>
+
+        <div class="config-add-row">
+          <input type="text" id="nueva-categoria" placeholder="Nueva categoría..." maxlength="40" autocomplete="off" />
+          <button type="button" class="btn btn-primary btn-sm" id="btn-add-categoria">Agregar</button>
+        </div>
+
+        <ul id="lista-categorias-config" class="lista-categorias-config"></ul>
+
+        <div class="config-divider"></div>
+
+        <h3 class="config-section-title">Datos de prueba</h3>
+        <p class="hint" style="margin-bottom: 0.75rem;">
+          Carga productos típicos de kiosco para probar la app.
+        </p>
+        <button type="button" class="btn btn-secondary" id="btn-cargar-ejemplos-config">
+          Cargar productos de ejemplo
+        </button>
+      </div>
+      <div class="modal-actions" style="padding: 0 1.3rem 1.2rem;">
+        <button type="button" class="btn btn-primary" id="btn-cerrar-config-ok">Listo</button>
+      </div>
     </div>
   </div>
 
