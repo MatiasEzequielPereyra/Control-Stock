@@ -1,10 +1,11 @@
 /* Stock Kiosco — Service Worker (offline básico) */
-const CACHE = "stock-kiosco-v4";
+const CACHE = "stock-kiosco-v5";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
+  "./supabase-config.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

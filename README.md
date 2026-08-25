@@ -1,67 +1,82 @@
 # Stock Kiosco
 
-App de control de stock para kioscos. **PWA instalable** — funciona en celular, tablet y PC.
+App de control de stock para kioscos. **PWA instalable**, con **sincronización en vivo entre dispositivos** (celular, tablet, PC) usando Supabase.
 
-## Cómo usarla ya
+## 🚀 Puesta en marcha (una sola vez)
 
-### Opción rápida (probar)
-1. Descomprimí la carpeta
-2. Abrí `index.html` en el navegador  
-   ⚠️ El modo offline / “Instalar app” **no funciona** abriendo el archivo directo (`file://`). Para eso necesitás un servidor local o hosting.
+### 1. Crear el backend en Supabase (gratis)
+1. Entrá a [supabase.com](https://supabase.com) y creá una cuenta + un proyecto nuevo.
+2. En el panel del proyecto, andá a **SQL Editor → New query**, pegá todo el contenido de
+   [`supabase/schema.sql`](./supabase/schema.sql) y apretá **Run**.
+   Esto crea las tablas (`productos`, `categorias`, `movimientos`), la seguridad por usuario (RLS)
+   y la función `ajustar_stock` que hace las ventas/reposiciones sin pisar datos entre dispositivos.
+3. Andá a **Authentication → Providers** y confirmá que **Email** esté habilitado (login por magic link,
+   sin contraseña).
+4. Andá a **Project Settings → API** y copiá:
+   - **Project URL**
+   - **anon public key**
 
-### Probar como app de verdad (recomendado)
-En la carpeta del proyecto:
+### 2. Configurar la app
+Abrí `supabase-config.js` y pegá ahí esos dos valores:
 
-```bash
-# Con Python
-python3 -m http.server 8080
-
-# O con Node
-npx serve .
+```js
+const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
+const SUPABASE_ANON_KEY = "TU-ANON-KEY-ACA";
 ```
 
-Después abrí `http://localhost:8080` en el celular (misma wifi) o en la PC.  
-En Chrome/Edge debería aparecer **“Instalar app”**.
+### 3. Publicar
+Subí la carpeta a Netlify, Vercel, Cloudflare Pages o GitHub Pages (con HTTPS).
+En **Authentication → URL Configuration** de Supabase, agregá la URL pública como
+"Redirect URL" para que el magic link funcione.
 
-### Publicarla online (gratis para empezar)
-Subí la carpeta a:
-- [Netlify Drop](https://app.netlify.com/drop) (arrastrás la carpeta)
-- [Cloudflare Pages](https://pages.cloudflare.com/)
-- [Vercel](https://vercel.com/)
-- GitHub Pages
-
-Con HTTPS, el botón **Instalar** y el modo offline funcionan bien.
+### 4. Usarla
+Entrá desde el celular, la tablet y la PC, ingresá con el mismo email en cada uno.
+Cualquier venta, reposición o edición que hagas en un dispositivo aparece **al instante**
+en los demás (sin recargar la página) — es Supabase Realtime.
 
 ---
 
-## Qué tiene hoy (fase comercial 1)
+## Cómo se actualiza el stock "en vivo"
 
-- ✅ Control de stock con fotos, compra/venta y margen
+- **Botón "−" en la tarjeta** → registra una **venta** (resta 1 al stock).
+- **Botón "+" en la tarjeta** → registra un **ingreso** (reponer mercadería, suma 1).
+- **Click en el número de stock** → abre el ajuste manual (corregir un conteo, ±10/±5/±1 o valor exacto).
+
+Todos estos movimientos quedan guardados en la tabla `movimientos` (con tipo `venta` / `ingreso` / `ajuste`),
+así queda un historial de qué pasó con cada producto.
+
+La actualización de stock usa una función de base de datos (`ajustar_stock`) que hace el cambio de forma
+atómica: si dos personas venden el mismo producto al mismo tiempo desde dos celulares distintos, el stock
+resultante es correcto igual — no se pisa una venta con la otra.
+
+---
+
+## Qué tiene hoy
+
+- ✅ Login por email (sin contraseña) — cada kiosco ve solo sus propios datos
+- ✅ Stock sincronizado en vivo entre todos los dispositivos (Supabase Realtime)
+- ✅ Venta / reposición / ajuste con historial de movimientos
+- ✅ Fotos, precio de compra/venta y margen
 - ✅ Categorías configurables
 - ✅ Alertas y filtro de stock bajo
 - ✅ Export CSV
 - ✅ Tema claro/oscuro
-- ✅ PWA instalable + cache offline de la app
+- ✅ PWA instalable + cache offline de la interfaz (los datos requieren conexión)
 - ✅ Onboarding de primera vez
-- ✅ Datos locales (localStorage)
 
-## Roadmap para venderlo
+## Roadmap para seguir comercializando
 
-### Fase 2 — Multi-dispositivo (prioridad)
-- Cuenta de usuario (email / Google)
-- Base de datos en la nube (Supabase o Firebase)
-- Sincronización entre celu, tablet y PC
-- Roles: dueño / empleado
+### Corto plazo
+- Reportes: qué se vendió hoy/esta semana, producto más vendido, margen del mes
+  (ya está la data en `movimientos`, falta la pantalla)
+- Modo "vender varias unidades de una" más rápido (carrito simple)
+- Cola de acciones pendientes cuando no hay internet, para no perder ventas offline
 
-### Fase 3 — Ventas
-- Modo “vender” (descuenta stock)
-- Historial de movimientos
-- Reportes simples (qué se vende, margen del mes)
-
-### Fase 4 — Monetización
+### Mediano plazo
+- Roles: dueño / empleado (empleado no puede editar precios ni eliminar productos)
+- Multi-local (un mismo dueño con más de un kiosco)
+- Códigos de barras (escaneo con la cámara)
 - Plan free limitado + plan Pro mensual
-- Multi-local
-- Códigos de barras
 
 ---
 
@@ -72,16 +87,17 @@ kiosco-stock/
 ├── index.html
 ├── styles.css
 ├── app.js
-├── sw.js              ← service worker (offline)
-├── manifest.json      ← PWA
+├── supabase-config.js   ← completar con tu URL y anon key
+├── supabase/
+│   └── schema.sql       ← correr una vez en el SQL Editor de Supabase
+├── sw.js                ← service worker (offline de la interfaz)
+├── manifest.json        ← PWA
 ├── icons/
-│   ├── icon-192.png
-│   ├── icon-512.png
-│   └── apple-touch-icon.png
 └── README.md
 ```
 
 ## Nota técnica
 
-Los datos viven en el navegador del usuario.  
-Para comercializar en serio hay que pasar a backend + auth (fase 2).
+Los datos viven en Supabase (Postgres), no en el navegador. Cada dispositivo se autentica
+con el mismo email y ve/edita los mismos productos en tiempo real gracias a Supabase Realtime,
+protegidos por Row Level Security (cada usuario solo accede a sus propias filas).

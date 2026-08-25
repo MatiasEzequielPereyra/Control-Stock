@@ -1140,3 +1140,61 @@ kbd {
 .onboarding-card .btn-secondary {
   width: 100%;
 }
+
+/* ===== Login / Autenticación (Supabase) ===== */
+.auth-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 1.25rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem 1.75rem;
+  text-align: center;
+}
+
+.auth-card h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.auth-form {
+  text-align: left;
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.auth-check-email {
+  margin-top: 1.25rem;
+  text-align: center;
+}
+
+.auth-email-destacado {
+  font-weight: 700;
+  color: var(--primary);
+  word-break: break-all;
+  margin: 0.35rem 0;
+}
+
+.sesion-badge {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
